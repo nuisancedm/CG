@@ -143,8 +143,8 @@ int main(int argc, const char **argv)
 
     std::vector<Eigen::Vector3i> ind{{0, 1, 2}}; // >>>>render index
 
-    auto pos_id = r.load_positions(pos);
-    auto ind_id = r.load_indices(ind);
+    auto pos_id = r.load_positions(pos);  // >>>> get the position ID to draw
+    auto ind_id = r.load_indices(ind); // >>>> index id
 
     int key = 0;
     int frame_count = 0;
