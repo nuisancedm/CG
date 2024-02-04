@@ -134,7 +134,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 
 void rst::rasterizer::draw(rst::pos_buf_id pos_buffer, rst::ind_buf_id ind_buffer, rst::Primitive type)
 {
-    if (type != rst::Primitive::Triangle)
+    if (type != rst::Primitive::Triangle)// >>>> can only draw triangle.
     {
         throw std::runtime_error("Drawing primitives other than triangle is not implemented yet!");
     }
@@ -149,7 +149,7 @@ void rst::rasterizer::draw(rst::pos_buf_id pos_buffer, rst::ind_buf_id ind_buffe
     {
         Triangle t;
 
-        Eigen::Vector4f v[] = {
+        Eigen::Vector4f v[] = { // >>>> apply mvp tp points.
                 mvp * to_vec4(buf[i[0]], 1.0f),
                 mvp * to_vec4(buf[i[1]], 1.0f),
                 mvp * to_vec4(buf[i[2]], 1.0f)
@@ -159,7 +159,7 @@ void rst::rasterizer::draw(rst::pos_buf_id pos_buffer, rst::ind_buf_id ind_buffe
             vec /= vec.w();
         }
 
-        for (auto & vert : v)
+        for (auto & vert : v)// >>>> convert space coords to screem coords.
         {
             vert.x() = 0.5*width*(vert.x()+1.0);
             vert.y() = 0.5*height*(vert.y()+1.0);
@@ -203,13 +203,13 @@ void rst::rasterizer::set_projection(const Eigen::Matrix4f& p)
     projection = p;
 }
 
-void rst::rasterizer::clear(rst::Buffers buff)
+void rst::rasterizer::clear(rst::Buffers buff) // >>>> 11 which means clear color buffer and depth buffer together.
 {
-    if ((buff & rst::Buffers::Color) == rst::Buffers::Color)
+    if ((buff & rst::Buffers::Color) == rst::Buffers::Color) // >>>> 11&01=01 == 01
     {
-        std::fill(frame_buf.begin(), frame_buf.end(), Eigen::Vector3f{0, 0, 0});
+        std::fill(frame_buf.begin(), frame_buf.end(), Eigen::Vector3f{0, 0, 0}); // >>>> set all to black
     }
-    if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
+    if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth) // >>>> 11&10=10 == 10
     {
         std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());
     }

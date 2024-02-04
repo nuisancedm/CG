@@ -119,7 +119,7 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
 int main(int argc, const char **argv)
 {
     float angle = 0;
-    Eigen::Vector3f axis(0.5f, 0.0f, -2.0f);
+    Eigen::Vector3f axis(0.5f, 0.0f, -2.0f);// >>>>rotate axis
     bool command_line = false;
     std::string filename = "output.png";
 
@@ -143,7 +143,7 @@ int main(int argc, const char **argv)
 
     std::vector<Eigen::Vector3i> ind{{0, 1, 2}}; // >>>>render index
 
-    auto pos_id = r.load_positions(pos);  // >>>> get the position ID to draw
+    auto pos_id = r.load_positions(pos);  // >>>> get the position ID in the pos_buf(map) to draw
     auto ind_id = r.load_indices(ind); // >>>> index id
 
     int key = 0;
@@ -165,11 +165,11 @@ int main(int argc, const char **argv)
         return 0;
     }
 
-    while (key != 27)
+    while (key != 27) // >>>> esc is not pressed 
     {
+        // >>>> bitwise or, Color=01; Depth=10,Color|Depth=11, clear color and depth buffer
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
-        
-        //switch this line to rodrigus rotation for any axis.
+        // >>>> switch this line to rodrigus rotation for any axis.
         r.set_model(get_rotation_matrix(axis, angle));
         // r.set_model(get_model_matrix(angle));
         r.set_view(get_view_matrix(eye_pos));
