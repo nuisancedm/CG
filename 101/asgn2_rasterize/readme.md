@@ -7,6 +7,8 @@ static bool insideTriangle(float x, float y, const Vector3f*_v)
 修改了部分源码来去除MSAA之后的黑边。  
 实现2xMSAA和无MSAA的三角形光栅化
 
+有一说一，相机看向-z方向，深度值却初始化为正的，真的很容易混淆...
+
 ## MSAA的黑边问题  
 
 先理一下光栅化的流程。  
