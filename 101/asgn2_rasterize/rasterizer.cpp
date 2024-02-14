@@ -197,10 +197,10 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                         float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                         float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                         z_interpolated *= w_reciprocal;//z 深度插值
-                        if(MSAA2x_depth_buf[MSAA_buffer_id] == std::numeric_limits<float>::infinity()){
-                            MSAA2x_depth_buf[MSAA_buffer_id] = -z_interpolated;
-                            Eigen::Vector3f color = t.getColor();
-                            MSAA2x_frame_buf[MSAA_buffer_id] = color;
+                        if(z_interpolated > - MSAA2x_depth_buf[MSAA_buffer_id]){ // 解释一下为什么是这个判断条件
+                            MSAA2x_depth_buf[MSAA_buffer_id] = -z_interpolated;  // 我们的相机默认看向-z方向，但是本代码框架初始化z都是正值，z越小就越近。
+                            Eigen::Vector3f color = t.getColor();                // MSAA2x_depth_buf中存储的是负值
+                            MSAA2x_frame_buf[MSAA_buffer_id] = color;            // 所以（z_interpolated 大于 负的MSAA2x_depth_buf）才是近的判断。
                         }
                     }
                 }
@@ -209,11 +209,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             float avgZ = 0;
             Eigen::Vector3f avgColor(0,0,0);
             for(int i=0;i<multisample*multisample;i++){
-                if(MSAA2x_depth_buf[id*4+i] == std::numeric_limits<float>::infinity()){
-                    avgZ += 9999999;
-                }else{
-                    avgZ += MSAA2x_depth_buf[id * 4 + i];
-                }
+                if(MSAA2x_depth_buf[id*4+i] != std::numeric_limits<float>::infinity())
+                     avgZ += MSAA2x_depth_buf[id * 4 + i];
                 avgColor[0] = avgColor[0] + MSAA2x_frame_buf[id*4+i][0];
                 avgColor[1] = avgColor[1] + MSAA2x_frame_buf[id*4+i][1];
                 avgColor[2] = avgColor[2] + MSAA2x_frame_buf[id*4+i][2];

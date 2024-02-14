@@ -96,6 +96,8 @@ int main(int argc, const char** argv)
             {
                     {0, 1, 2},
                     {3, 4, 5}
+                    
+                    
             };
 
     std::vector<Eigen::Vector3f> cols
