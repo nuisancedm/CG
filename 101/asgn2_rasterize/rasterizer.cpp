@@ -178,9 +178,8 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
             // }
             
             // MSAA 2x
+            int id = get_index(x,y);
             int multisample = 2;
-            std::vector<float> sampleListsZ;
-            std::vector<Eigen::Vector3f> colors;
             float step = 1.0f / multisample;
             for(int j=0; j<2; j++) {
                 for(int k=0; k<2;k++){
@@ -189,30 +188,37 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                     // 计算采样点的实际坐标
                     float sampleX = x + offsetX;
                     float sampleY = y + offsetY;
+
+                    int MSAA_buffer_offset = j * multisample + k; //该采样点在MSAA buffer中的偏移。采样点在MSAA buffer中的index = get_index(x,y) * 4 + MSAA_buffer_offset
+                    int MSAA_buffer_id  = id * 4 + MSAA_buffer_offset;
+
                     if(insideTriangle(sampleX,sampleY,t.v)){
                         auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
                         float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                         float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                         z_interpolated *= w_reciprocal;//z 深度插值
-                        sampleListsZ.push_back(-z_interpolated);
-                        Eigen::Vector3f color = t.getColor();
-                        colors.push_back(color);
-                    }else{
-                        sampleListsZ.push_back(0);
-                        Eigen::Vector3f color(0,0,0);
-                        colors.push_back(color);
+                        if(MSAA2x_depth_buf[MSAA_buffer_id] == std::numeric_limits<float>::infinity()){
+                            MSAA2x_depth_buf[MSAA_buffer_id] = -z_interpolated;
+                            Eigen::Vector3f color = t.getColor();
+                            MSAA2x_frame_buf[MSAA_buffer_id] = color;
+                        }
                     }
                 }
             }
-            int id = get_index(x,y);
+            
             float avgZ = 0;
             Eigen::Vector3f avgColor(0,0,0);
             for(int i=0;i<multisample*multisample;i++){
-                avgZ += sampleListsZ[i];
-                avgColor[0] = avgColor[0] + colors[i][0];
-                avgColor[1] = avgColor[1] + colors[i][1];
-                avgColor[2] = avgColor[2] + colors[i][2];
+                if(MSAA2x_depth_buf[id*4+i] == std::numeric_limits<float>::infinity()){
+                    avgZ += 9999999;
+                }else{
+                    avgZ += MSAA2x_depth_buf[id * 4 + i];
+                }
+                avgColor[0] = avgColor[0] + MSAA2x_frame_buf[id*4+i][0];
+                avgColor[1] = avgColor[1] + MSAA2x_frame_buf[id*4+i][1];
+                avgColor[2] = avgColor[2] + MSAA2x_frame_buf[id*4+i][2];
             }
+
             avgZ = avgZ / multisample*multisample;
             avgColor = avgColor / (multisample*multisample);
 
@@ -246,10 +252,17 @@ void rst::rasterizer::clear(rst::Buffers buff)
     if ((buff & rst::Buffers::Color) == rst::Buffers::Color)
     {
         std::fill(frame_buf.begin(), frame_buf.end(), Eigen::Vector3f{0, 0, 0});
+        // MSAA ADD 0
+        std::fill(MSAA2x_frame_buf.begin(), MSAA2x_frame_buf.end(), Eigen::Vector3f{0, 0, 0}); // msaa buffer也要清空
+        // MSAA ADD 1
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
         std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());
+        // MSAA ADD 0
+        std::fill(MSAA2x_depth_buf.begin(), MSAA2x_depth_buf.end(), std::numeric_limits<float>::infinity());//msaa buffer也要清空
+        // MSAA ADD 1
+
     }
 }
 
@@ -257,6 +270,11 @@ rst::rasterizer::rasterizer(int w, int h) : width(w), height(h)
 {
     frame_buf.resize(w * h);
     depth_buf.resize(w * h);
+
+    // MSAA ADD 0
+    MSAA2x_frame_buf.resize(w * h * 4); // msaa buffer要开4倍大小，如果是3x就要开9倍大小，但是懒得改成自动的了。
+    MSAA2x_depth_buf.resize(w * h * 4);
+    // MSAA ADD 1
 }
 
 int rst::rasterizer::get_index(int x, int y)

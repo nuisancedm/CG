@@ -91,8 +91,11 @@ namespace rst
         std::map<int, std::vector<Eigen::Vector3f>> col_buf;
 
         std::vector<Eigen::Vector3f> frame_buf;
-
         std::vector<float> depth_buf;
+
+        std::vector<Eigen::Vector3f> MSAA2x_frame_buf; // 新建MSAA buffer，clear函数执行的时候同样要清空。
+        std::vector<float> MSAA2x_depth_buf;
+
         int get_index(int x, int y);
 
         int width, height;
