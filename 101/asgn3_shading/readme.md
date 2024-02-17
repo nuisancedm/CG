@@ -123,15 +123,6 @@ $$α+β+γ=1 (α>=0;β>=0;γ>=0)$$
 
 重心坐标有一个问题：在经过投影变换之后，重心坐标会不一样。所以三维空间的属性要在三维空间中插值，也就是要在投影之前进行插值。
 
-## 纹理应用
-
-```C++
-for each rasterized screen sample (x,y):
-    (u, v) = evaluate texture coordinate at (x, y) // using barycentric coordinates
-    texcolor = texture.sample(u, v)
-    set sample's color to texcolor // usually the diffuse albedo kd
-```
-
 ## 纹理放大 Texture Magnification
 
 ### 如果纹理太小了怎么办？
@@ -178,3 +169,36 @@ MIPMAP也有一个问题，mipmap在远处会出现模糊(overblur)，这是因�
 
 各向异性过滤和mipmap不同他同时也生成的图片沿x，y方向压扁之后的图。
 各项异性过滤允许我们进行在一个长方形内进行查询平均值。但是他还是没有解决斜着的长方形的。
+
+## 纹理应用
+
+纹理映射伪代码：
+
+```C++
+for each rasterized screen sample (x,y):
+    (u, v) = evaluate texture coordinate at (x, y) // using barycentric coordinates
+    texcolor = texture.sample(u, v)
+    set sample's color to texcolor // usually the diffuse albedo kd
+```
+
+在现代GPU架构中，**纹理 = 一块内存 + 这块内存上的范围查询算法**(filtering)，通用的来讲是一块数据给像素用来查询和计算。而不是仅仅局限在材质=图像上。  
+从这个角度上来讲，纹理就有许多其他的应用：
+
+**环境光照 Environment Lighting**：
+我们把一个物体每个点受到的环境光全部记录下来，并且认为这些光来自无限远处，只记录方向。渲染的时候按照点的位置去查询环境光。  
+
+* Sphere Environment Map：用一个镜面的球来记录环境光信息，并把这个球进行二维展开，这样又一个缺点，就是球的极点位置会发生扭曲。
+* Cube Environment Map: 用一个正方体盒子来包裹这个镜面球，正方体的6个面和球上的各个部分一一映射，就能得到Cube Map，这样做解决了扭曲问题，但是需要一些额外的计算。
+
+**凹凸贴图/法线贴图 Bump Map/Norm Map**：  
+用纹理定义一个点的凹凸偏移量，即记录每一个点的相对高度。相对高度发生了变化，法线也会法线变化，从而影响了着色。通过法线贴图，我们扰动了表面法线，而不改变实际的几何。
+
+* 如何计算凹凸贴图的新法线？：  
+ 原本p点表面法线 n(p) = (0,0,1)  （局部坐标系）  
+ 凹凸之后p点微分：dp/du = c1*[h(u+1) - h(u)]; dp/dv = c2*[h(v+1) - h(v)];  
+ 凹凸之后的p点法线 n = (-dp/du,-dp/dv, 1).normalized();  
+ 坐标系变换，把凹凸之后的法线变换回世界坐标系。
+
+**位移贴图 displacement map**  
+不同于凹凸贴图只换算成法线的变换，位移贴图里真正的移动了顶点位置
+位移贴图要求模型面数较高。
