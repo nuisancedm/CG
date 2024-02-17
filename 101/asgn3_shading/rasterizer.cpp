@@ -265,15 +265,83 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     //    * Z is interpolated view space depth for the current pixel
     //    * zp is depth between zNear and zFar, used for z-buffer
 
+    auto v = t.toVector4();
+    float minx = v[0].x();
+    float maxx = v[0].x();
+    float miny = v[0].y();
+    float maxy = v[0].y();
+
+    for(int i = 1 ; i < 3 ; i++){
+        if(v[i].x() < minx){
+            minx = v[i].x();
+        }
+        if(v[i].x() > maxx){
+            maxx = v[i].x();
+        }
+        if(v[i].y() < miny){
+            miny = v[i].y();
+        }
+        if(v[i].y() > maxy){
+            maxy = v[i].y();
+        }
+    }
+    for(int x = minx ; x < maxx ; x++){
+        for(int y = miny; y < maxy;y++){
+            if(insideTriangle(x+0.5,y+0.5,t.v)){
+                // is in side
+                auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v); // 传入像素位置和三角形顶点坐标，返回三角形内部点的重心坐标
+                float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w()); //w插值
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w(); //z插值
+                z_interpolated *= w_reciprocal;//z 深度插值
+
+                //Vector3f interpolated_color = interpolate(alpha, beta, gamma, t.color[0],t.color[1],t.color[2],1);
+                Vector3f interpolated_color(0,0,0);
+                interpolated_color[0] = alpha * t.color[0][0] + beta * t.color[1][0] + gamma * t.color[2][0];
+                interpolated_color[1] = alpha * t.color[0][1] + beta * t.color[1][1] + gamma * t.color[2][1];
+                interpolated_color[2] = alpha * t.color[0][2] + beta * t.color[1][2] + gamma * t.color[2][2];
+
+                //Vector3f interpolated_normal = interpolate(alpha, beta, gamma, t.normal[0],t.normal[1],t.normal[2],1);
+                Vector3f interpolated_normal(0,0,0);
+                interpolated_normal[0] = alpha * t.normal[0][0] + beta * t.normal[1][0] + gamma * t.normal[2][0];
+                interpolated_normal[1] = alpha * t.normal[0][1] + beta * t.normal[1][1] + gamma * t.normal[2][1];
+                interpolated_normal[2] = alpha * t.normal[0][2] + beta * t.normal[1][2] + gamma * t.normal[2][2];
+
+                //Vector2f interpolated_texcoords = interpolate(alpha, beta, gamma, t.tex_coords[0],t.tex_coords[1],t.tex_coords[2],1);
+                Vector2f interpolated_texcoords(0,0);
+                interpolated_texcoords[0] = alpha * t.tex_coords[0][0] + beta * t.tex_coords[1][0] + gamma * t.tex_coords[2][0];
+                interpolated_texcoords[1] = alpha * t.tex_coords[0][1] + beta * t.tex_coords[1][1] + gamma * t.tex_coords[2][1];
+
+                //Vector3f interpolated_shadingcoords = interpolate(alpha, beta, gamma, view_pos[0],view_pos[1],view_pos[2],1);
+                Vector3f interpolated_shadingcoords(0,0,0);
+                interpolated_shadingcoords[0] = alpha * view_pos[0][0] + beta * view_pos[1][0] + gamma * view_pos[2][0];
+                interpolated_shadingcoords[1] = alpha * view_pos[0][1] + beta * view_pos[1][1] + gamma * view_pos[2][1];
+                interpolated_shadingcoords[2] = alpha * view_pos[0][2] + beta * view_pos[1][2] + gamma * view_pos[2][2];
+
+
+                int id = get_index(x,y);
+                if(z_interpolated < depth_buf[id]){
+                    depth_buf[id] = z_interpolated;
+
+                    fragment_shader_payload payload(interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
+                    payload.view_pos = interpolated_shadingcoords;
+                    auto pixel_color = fragment_shader(payload);
+                    frame_buf[id] = pixel_color;
+                }
+            }
+            
+        }
+    }
+    
+
     // float Z = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
     // float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
     // zp *= Z;
 
     // TODO: Interpolate the attributes:
-    // auto interpolated_color
-    // auto interpolated_normal
-    // auto interpolated_texcoords
-    // auto interpolated_shadingcoords
+    // done auto interpolated_color 
+    // done auto interpolated_normal
+    // done auto interpolated_texcoords
+    // done auto interpolated_shadingcoords
 
     // Use: fragment_shader_payload payload( interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
     // Use: payload.view_pos = interpolated_shadingcoords;

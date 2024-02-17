@@ -1,3 +1,13 @@
+# Program
+
+补充 rasterize_triangle in rasterizer.cpp；
+补充 phong_fragment_shader in main.cpp；
+补充 texture_fragment_shader in main.cpp；
+补充 bump_fragment_shader in main.cpp；
+补充 displacement_fragment_shader in main.cpp；
+
+...
+
 # 以下是笔记
 
 # 着色 SHADING
