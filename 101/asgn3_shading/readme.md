@@ -1,12 +1,19 @@
 # Program
 
-补充 rasterize_triangle in rasterizer.cpp；
-补充 phong_fragment_shader in main.cpp；
-补充 texture_fragment_shader in main.cpp；
-补充 bump_fragment_shader in main.cpp；
-补充 displacement_fragment_shader in main.cpp；
+补充 rasterize_triangle in rasterizer.cpp；  
+补充 phong_fragment_shader in main.cpp；  
+补充 texture_fragment_shader in main.cpp；  
+补充 bump_fragment_shader in main.cpp；  
+补充 displacement_fragment_shader in main.cpp；  
 
-...
+本代码基于CPU比较完整的走了一遍管线。以下是代码详解：  
+main函数中首先读取了一个OBJ，生成了一个三角形列表TriangleList。  
+三角形列表中每一个三角形类都记录了本三角形的顶点坐标向量v4f，法线向量v3f，纹理坐标v2f，对应**管线的input部分**。  
+初始化光栅化器，我们需要按照我们启动程序的参数来决定，光栅化对象的材质位置和选用的shader。  
+我们定义eye_pos为{0,0,10}，这是相机的位置。  
+
+清空光栅化器的frame_buffer和depth_buffer。
+为光栅化器设置M矩阵，还记得M矩阵干什么的吗？
 
 # 以下是笔记
 
