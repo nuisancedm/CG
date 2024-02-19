@@ -60,7 +60,7 @@ $$
 $$
 \begin{pmatrix}
 x'  \\
-y'  \\
+y'  
 \end{pmatrix}
 =
 \begin{pmatrix}
