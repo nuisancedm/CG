@@ -58,6 +58,7 @@ $$
 **缩放scale**：Sx和Sy为两轴的缩放因子：
 
 $$
+M_{scale}=
 \begin{pmatrix}
 S_{x} & 0\\
 0 & S_{y} \\
@@ -67,71 +68,40 @@ $$
 **翻转reflection**：例子为x轴翻转，y轴翻转同理
 
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-\end{pmatrix}
-=
+M_{reflection}
 \begin{pmatrix}
 -1 & 0\\
 0 & 1 \\
-\end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
 \end{pmatrix}
 $$
 
 **切变shear**：样例为沿x轴向正方向切边
 
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-\end{pmatrix}
-=
+M_{shear}=
 \begin{pmatrix}
 1 & a\\
 0 & 1 \\
-\end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
 \end{pmatrix}
 $$
 
 **旋转rotate**：样例为绕(0,0)点逆时针旋转θ度
 
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-\end{pmatrix}
-=
+M_{Rotate}=
 \begin{pmatrix}
 cosθ & -sinθ\\
 sinθ & cosθ \\
 \end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
-\end{pmatrix}
+
 $$  
   
 上面的四种变换可以被统称为**线性变换（Linear Transform）**  
 都是x'=Mx的形式。  
 
-**平移transition：** 平移不属于线性变换，他无法写成x'=Mx的形式，他是一种仿射变换
+**平移transition：** 平移不属于线性变换，他无法写成一个单独矩阵的形式。
 
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-\end{pmatrix}
-=
 \begin{pmatrix}
  a & b\\
 c & d \\
@@ -163,22 +133,11 @@ $$
 此时仿射变换可以写成：
 
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-w'
-\end{pmatrix}
-=
+M_{affine}=
 \begin{pmatrix}
  a & b & t_{x}\\
 c & d & t_{y}\\
 0 & 0 & 1
-\end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
-1
 \end{pmatrix}
 $$  
 其中abcd为线性变换部分，txty为平移部分。
@@ -201,26 +160,13 @@ $$T_{(1,0)} \times R_{45} \times\begin{pmatrix}x  \\ y  \\ 1\end{pmatrix}$$
 
 三维变换基本与二维变换的理论相同。  
 三维仿射变换如下（与二维不能说一模一样，只能说）：
+
 $$
-\begin{pmatrix}
-x'  \\
-y'  \\
-z'  \\
-w'
-\end{pmatrix}
-=
 \begin{pmatrix}
  a & b & c & t_{x}\\
 d & e & f & t_{y}\\
 g & h & i & t_{z}\\
 0 & 0 & 0 & 1
-\end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
-z  \\
-1
 \end{pmatrix}
 $$  
 
