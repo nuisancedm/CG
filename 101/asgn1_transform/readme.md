@@ -55,7 +55,7 @@ $$
 
 ### 二维模型变换
 
-缩放scale：Sx和Sy为两轴的缩放因子。
+缩放scale：Sx和Sy为两轴的缩放因子。  
 
 $$
 \begin{pmatrix}
