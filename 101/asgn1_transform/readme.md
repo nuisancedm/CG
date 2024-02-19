@@ -59,18 +59,8 @@ $$
 
 $$
 \begin{pmatrix}
-x'  \\
-y'  
-\end{pmatrix}
-=
-\begin{pmatrix}
 S_{x} & 0\\
 0 & S_{y} \\
-\end{pmatrix}
-\times
-\begin{pmatrix}
-x  \\
-y  \\
 \end{pmatrix}
 $$
 
