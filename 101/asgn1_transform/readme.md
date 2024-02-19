@@ -55,7 +55,7 @@ $$
 
 ### 二维模型变换
 
-* **缩放scale**：Sx和Sy为两轴的缩放因子。
+**缩放scale**：Sx和Sy为两轴的缩放因子。
 
 $$
 \begin{pmatrix}
@@ -74,7 +74,7 @@ y  \\
 \end{pmatrix}
 $$
 
-* **翻转reflection**：例子为x轴翻转，y轴翻转同理
+**翻转reflection**：例子为x轴翻转，y轴翻转同理
 
 $$
 \begin{pmatrix}
@@ -93,7 +93,7 @@ y  \\
 \end{pmatrix}
 $$
 
-* **切变shear**：样例为沿x轴向正方向切边
+**切变shear**：样例为沿x轴向正方向切边
 
 $$
 \begin{pmatrix}
@@ -112,7 +112,7 @@ y  \\
 \end{pmatrix}
 $$
 
-* **旋转rotate**：样例为绕(0,0)点逆时针旋转θ度
+**旋转rotate**：样例为绕(0,0)点逆时针旋转θ度
 
 $$
 \begin{pmatrix}
@@ -134,7 +134,7 @@ $$
 上面的四种变换可以被统称为**线性变换（Linear Transform）**  
 都是x'=Mx的形式。  
 
-* **平移transition：** 平移不属于线性变换，他无法写成x'=Mx的形式，他是一种仿射变换
+**平移transition：** 平移不属于线性变换，他无法写成x'=Mx的形式，他是一种仿射变换
 
 $$
 \begin{pmatrix}
