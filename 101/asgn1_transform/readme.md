@@ -20,7 +20,8 @@
 
 定义：a × b = c (a，b，c为向量)  
 如果有 A = (Ax, Ay, Az); B = (Bx, By, Bz)  
-那么有：
+那么有:  
+
 $$
 A×B =(AyBz - AzBy, AzBx - AxBz, ByAx - BxAy) = A^{*}B =
 \begin{pmatrix}
