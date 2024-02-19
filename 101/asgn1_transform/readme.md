@@ -68,7 +68,7 @@ $$
 **翻转reflection**：例子为x轴翻转，y轴翻转同理
 
 $$
-M_{reflection}
+M_{reflection}=
 \begin{pmatrix}
 -1 & 0\\
 0 & 1 \\
@@ -93,7 +93,6 @@ M_{Rotate}=
 cosθ & -sinθ\\
 sinθ & cosθ \\
 \end{pmatrix}
-
 $$  
   
 上面的四种变换可以被统称为**线性变换（Linear Transform）**  
