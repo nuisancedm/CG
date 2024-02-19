@@ -254,15 +254,19 @@ $$q_{3}=q_{1}\times q_{2} = (aw-bx-cy-dz)+(ax+bw+cz-dy)i+(ay-bz+cw+dx)j+(az+by-c
 
 四元数转换矩阵
 $$q = w+xi+yj+zk$$
+
 $$R_{q}=\begin{pmatrix}
  1-2y^2-2z^2 & 2xy-2wz & 2xz+2wy\\
 2xy+2wz & 1-2x^2-2z^2 & 2yz-2wx\\
 2xz-2wy & 2yz+2wx & 1-2x^2-2y^2
-\end{pmatrix}$$
+\end{pmatrix}
+$$
 
 ## 视图变换 view
+
 视图变换安排相机在空间中的位置与朝向。
 首先定义几个相机的参数：
+
 * 位置position：
 * 朝向gaze_direction
 * 向上方向up_direction
@@ -270,11 +274,14 @@ $$R_{q}=\begin{pmatrix}
 视图变换view transform的作用就是对空间中任意一个相机，把它的位置重置在参考系原点，向上方向对齐y轴，看向-z方向。同时对空间中的其他所有物体也应用这个变换，这样才能保持物体和相机之间的相对位置保持不变。
 
 View变换的本质就是一个旋转矩阵和一个平移矩阵，先平移再旋转
-$$M_{view} = \begin{pmatrix}
+
+$$
+M_{view} = \begin{pmatrix}
  1-2y^2-2z^2 & 2xy-2wz & 2xz+2wy\\
 2xy+2wz & 1-2x^2-2z^2 & 2yz-2wx\\
 2xz-2wy & 2yz+2wx & 1-2x^2-2y^2
-\end{pmatrix}$$
+\end{pmatrix}
+$$
 
 ## 投影变换 project
 
