@@ -7,13 +7,58 @@
 补充 displacement_fragment_shader in main.cpp；  
 
 本代码基于CPU比较完整的走了一遍管线。以下是代码详解：  
-main函数中首先读取了一个OBJ，生成了一个三角形列表TriangleList。  
+
+## main
+
+首先读取了一个OBJ，生成了一个三角形列表TriangleList。  
 三角形列表中每一个三角形类都记录了本三角形的顶点坐标向量v4f，法线向量v3f，纹理坐标v2f，对应**管线的input部分**。  
 初始化光栅化器，我们需要按照我们启动程序的参数来决定，光栅化对象的材质位置和选用的shader。  
 我们定义eye_pos为{0,0,10}，这是相机的位置。  
 
 清空光栅化器的frame_buffer和depth_buffer。
-为光栅化器设置M矩阵，还记得M矩阵干什么的吗？
+为光栅化器设置MVP矩阵。
+执行r.draw，开始画三角形。
+
+## r.draw函数
+
+r.draw画的三角形列表中的所有三角形。
+
+for TriangleList中的每个triangle{
+    对这个三角形每个顶点做MV变换。把他们从模型空间变换到观察空间。
+
+    对顶点做MVP变换并除以W。
+
+    对顶点法线做mv逆转置变换，对，转法线是mv逆转置。
+
+    对顶点做视口转换，把他们从观察空间变换到屏幕空间。
+
+    重新set三角形的所有属性。
+
+    开始光栅化
+    rasterize_triangle(newtri, viewspace_pos); newtri中的坐标是屏幕坐标，viewspace_pos是相机坐标
+}
+
+## rasterize_triangle
+
+画一个三角形，这个函数执行总三角形数n次：
+确定三角形屏幕空间包围盒。
+for （包围盒内所有的像素）{
+    如果这个像素在三角形内：{
+        计算这个像素在三角形内重心坐标。
+
+        深度，颜色，法线，纹理坐标，相机坐标插值。 
+
+        获取该像素在buffer中的id。 
+
+        如果z插值 < buffer中的深度{  
+            更新深度buffer。 
+             
+            初始化shader payload。  
+            
+            运行shader获得最终颜色。
+        }
+    }
+}
 
 # 以下是笔记
 

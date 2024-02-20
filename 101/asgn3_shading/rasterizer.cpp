@@ -186,7 +186,7 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
                 (view * model * t->v[2])
         };
 
-        std::array<Eigen::Vector3f, 3> viewspace_pos;
+        std::array<Eigen::Vector3f, 3> viewspace_pos; // 不用除以w，view和model变换不会改变w。
 
         std::transform(mm.begin(), mm.end(), viewspace_pos.begin(), [](auto& v) {
             return v.template head<3>();
@@ -236,7 +236,7 @@ void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
         newtri.setColor(2, 148,121.0,92.0);
 
         // Also pass view space vertice position
-        rasterize_triangle(newtri, viewspace_pos);
+        rasterize_triangle(newtri, viewspace_pos);// 参数是三角形的屏幕空间坐标(三维，实际二维，z是深度) 和相机坐标（三维）
     }
 }
 
