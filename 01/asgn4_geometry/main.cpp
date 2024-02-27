@@ -51,7 +51,7 @@ cv::Point2f recursive_bezier(const std::vector<cv::Point2f> &control_points, flo
 
     return point_list[0];
 }
-float get_hafuman_dist(int x,int y, cv::Point2f point){
+float get_haffman_dist(int x,int y, cv::Point2f point){
     float x_center = (float)x + 0.5f;
     float y_center = (float)y + 0.5f;
 
@@ -73,7 +73,7 @@ void bezier(const std::vector<cv::Point2f> &control_points, cv::Mat &window)
                 for(int j=0; j<3 ;j++){
                     int new_x = std::min(window.cols-1, std::max(0, x+inc[i]));
                     int new_y = std::min(window.rows-1, std::max(0, y+inc[j]));
-                    float dist = get_hafuman_dist(new_x, new_y, point);
+                    float dist = get_haffman_dist(new_x, new_y, point);
                     if(dist >= 2.0f)
                         continue;
                     window.at<cv::Vec3b>(new_y, new_x)[1] = std::max(window.at<cv::Vec3b>(new_y, new_x)[1], (u_char)((2.0f-dist)*255/2.0f));
