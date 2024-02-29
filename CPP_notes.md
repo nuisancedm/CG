@@ -21,3 +21,5 @@ InputStart 和 InputEnd 分别是输入范围的开始和结束迭代器。
 OutputStart 是输出范围的开始迭代器。
 UnaryOperation 是一个一元操作，对输入范围中的每个元素进行操作。这个操作可以是函数指针、函数对象或者lambda表达式。
 这个版本的 std::transform 对输入范围 [InputStart, InputEnd] 中的每个元素调用 UnaryOperation，并将结果存储在从 OutputStart 开始的输出范围中。
+
+# std::move
