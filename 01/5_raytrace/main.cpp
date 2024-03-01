@@ -11,11 +11,11 @@ int main()
 {
     Scene scene(1280, 960); // check the class
 
-    auto sph1 = std::make_unique<Sphere>(Vector3f(-1, 0, -12), 2);
+    auto sph1 = std::make_unique<Sphere>(Vector3f(-1, 0, -12), 2); // sphere 1 is diffuse glossy
     sph1->materialType = DIFFUSE_AND_GLOSSY;
-    sph1->diffuseColor = Vector3f(0.6, 0.7, 0.8);
+    sph1->diffuseColor = Vector3f(0.6, 0.7, 0.8); // diffuse relection color
 
-    auto sph2 = std::make_unique<Sphere>(Vector3f(0.5, -0.5, -8), 1.5);
+    auto sph2 = std::make_unique<Sphere>(Vector3f(0.5, -0.5, -8), 1.5); // sphere 2 is mirror reflection
     sph2->ior = 1.5;
     sph2->materialType = REFLECTION_AND_REFRACTION;
 
