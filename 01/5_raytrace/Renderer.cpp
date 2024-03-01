@@ -239,10 +239,11 @@ void Renderer::Render(const Scene &scene)
             float x;
             float y;
 
-            float top = scale;
-            float right = imageAspectRatio * top;
-            x = (float(i) + 0.5f - (scene.width / 2)) / scene.width * 2 * right;
-            y = (float(j) + 0.5f - (scene.height / 2)) / scene.height * 2 * top;
+            // float top = scale;
+            // float right = imageAspectRatio * top;
+    
+            x = ((float(i) + 0.5f - (scene.width / 2)) / scene.width)* 2 * imageAspectRatio * scale;
+            y = -((float(j) + 0.5f - (scene.height / 2)) / scene.height) * 2 * scale;
 
             // TODO: Find the x and y positions of the current pixel to get the direction
             // vector that passes through it.
