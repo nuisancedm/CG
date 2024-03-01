@@ -1,5 +1,45 @@
-# 以下是笔记
+# 代码
+``` C++
+    场景中添加物体，光源，平面。
+    创建 framebuffer 
 
+    for(每个像素){
+        从这个像素发射光线r
+        framebuffer[m++] = castRay();
+    }
+
+    castRay(){ //该函数返回一条光线看到的颜色
+        if(auto payload = trace(); payload){
+
+        }
+    }
+
+    trace(){ //该函数返回一条光线在场景中的最近相交信息
+        for(场景中的所有物体){
+            if(intersect() && tNearK < tNear){
+
+            }
+        }
+    }
+
+    intersect(){ //该函数返回bool是否和某个物体相交
+        for(物体上的所有三角形){
+            if(rayTriangleIntersect()&& t < tnear){
+
+            }
+        }
+    }
+
+    rayTriangleIntersect(){//该函数返回bool一条光线是否和某个三角形相交
+
+    }
+
+```
+
+
+
+
+# 以下是笔记
 # Shadow map
 
 在以往着色流程中，我们只对一个shading point进行着色，只考虑这个shading point自己的法线，光源方向，观察方向，uv坐标等属性，而不考虑场景中其他地方对这个shading point的影响。而这是不正确的，因为当这个shading point和光源之间有东西阻挡的时候，这样的做法不会正确的计算阴影。

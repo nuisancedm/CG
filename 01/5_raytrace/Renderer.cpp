@@ -95,20 +95,20 @@ float fresnel(const Vector3f &I, const Vector3f &N, const float &ior)
 // \param[out] *hitObject stores the pointer to the intersected object (used to retrieve material information, etc.)
 // \param isShadowRay is it a shadow ray. We can return from the function sooner as soon as we have found a hit.
 // [/comment]
-std::optional<hit_payload> trace(
+std::optional<hit_payload> trace( // 该函数对一根光线遍历场景中所有的物体，
     const Vector3f &orig, const Vector3f &dir,
     const std::vector<std::unique_ptr<Object>> &objects)
 {
-    float tNear = kInfinity;
+    float tNear = kInfinity; // 初始化tNear为最远
     std::optional<hit_payload> payload;
-    for (const auto &object : objects)
+    for (const auto &object : objects) // 遍历所有物体
     {
         float tNearK = kInfinity;
         uint32_t indexK;
         Vector2f uvK;
-        if (object->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear)
+        if (object->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear) // 如果光线相交这个物体的某个三角形
         {
-            payload.emplace();
+            payload.emplace();// 修改这条光线的payload
             payload->hit_obj = object.get();
             payload->tNear = tNearK;
             payload->index = indexK;
@@ -140,15 +140,15 @@ Vector3f castRay(
     const Vector3f &orig, const Vector3f &dir, const Scene &scene,
     int depth)
 {
-    if (depth > scene.maxDepth)
+    if (depth > scene.maxDepth) // 如果超出最大深度直接返回黑色
     {
-        return Vector3f(0.0, 0.0, 0.0);
+        return Vector3f(0.0, 0.0, 0.0); 
     }
 
-    Vector3f hitColor = scene.backgroundColor;
+    Vector3f hitColor = scene.backgroundColor; // 默认击中为背景色蓝色
     if (auto payload = trace(orig, dir, scene.get_objects()); payload)
     {
-        Vector3f hitPoint = orig + dir * payload->tNear;
+        Vector3f hitPoint = orig + dir * payload->tNear; //这条光线的击中点
         Vector3f N;  // normal
         Vector2f st; // st coordinates
         payload->hit_obj->getSurfaceProperties(hitPoint, dir, payload->index, payload->uv, N, st);
@@ -221,37 +221,41 @@ Vector3f castRay(
 // [/comment]
 void Renderer::Render(const Scene &scene)
 {
-    std::vector<Vector3f> framebuffer(scene.width * scene.height);
+    std::vector<Vector3f> framebuffer(scene.width * scene.height); // 创建帧缓冲区
 
-    float scale = std::tan(deg2rad(scene.fov * 0.5f));          // tan(1/2*fov) = top/abs(near)
-    float imageAspectRatio = scene.width / (float)scene.height; // 宽高比
+    float scale = std::tan(deg2rad(scene.fov * 0.5f));          // scale = tan(1/2*fov) = top/abs(near)
+    float imageAspectRatio = scene.width / (float)scene.height; // imageAspectRatio = 宽高比 = width/height
 
     // Use this variable as the eye position to start your rays.
-    // top = scene.height/2
-    //
-    Vector3f eye_pos(0); // which is camera position (0,0,0)
-    int m = 0;
-    for (int j = 0; j < scene.height; ++j) // iterate all pixels to emit a ray
+    Vector3f eye_pos(0); // 相机位置(0，0，0)
+    int m = 0;           // 帧缓冲区内的编号
+    for (int j = 0; j < scene.height; ++j) // 遍历所有像素，从这些像素发射光线
     {
         for (int i = 0; i < scene.width; ++i)
-        {
-            // generate primary ray direction
-            float x;
-            float y;
-
-            // float top = scale;
-            // float right = imageAspectRatio * top;
-    
-            x = ((float(i) + 0.5f - (scene.width / 2)) / scene.width)* 2 * imageAspectRatio * scale;
-            y = -((float(j) + 0.5f - (scene.height / 2)) / scene.height) * 2 * scale;
-
+        {   
             // TODO: Find the x and y positions of the current pixel to get the direction
             // vector that passes through it.
             // Also, don't forget to multiply both of them with the variable *scale*, and
             // x (horizontal) variable with the *imageAspectRatio*
 
-            Vector3f dir = normalize(Vector3f(x, y, -1)); // Don't forget to normalize this direction!
-            framebuffer[m++] = castRay(eye_pos, dir, scene, 0);
+            // generate primary ray direction
+            // scale = tan(1/2*fov) = top/abs(near)
+            // imageAspectRatio = 宽高比 = width/height
+            // top = scale;
+            // right = imageAspectRatio * top;
+            float x = ((float(i) + 0.5f - (scene.width / 2)) / scene.width)* 2 * imageAspectRatio * scale;
+            float y = -((float(j) + 0.5f - (scene.height / 2)) / scene.height) * 2 * scale;
+            // 整理一下为什么x，y是这么求的。
+            // 光栅化空间下，以一个像素为一个单位，坐标系原点在屏幕左上角。
+            // 世界空间下，坐标系原点在相机位置，图像平面垂直于z轴，且z轴穿过图像平面中心。
+            // 我们要做的就是把光栅空间坐标[i,j]转化成世界坐标(x,y),也就是要找到当前像素在世界坐标系下的坐标。
+            // float(i) + 0.5f 为找到当前像素的中心的x坐标(光栅坐标系)
+            // float(i) + 0.5f - (scene.width / 2) 为 当前像素的中心的x坐标 减去 图像平面中点的x坐标，得到像素相对于图像平面中点的坐标。
+            // (float(i) + 0.5f - (scene.width / 2)) / scene.width 为 当前像素在总长度中的几分之几的位置。
+            // ((float(i) + 0.5f - (scene.width / 2)) / scene.width)* 2 * imageAspectRatio * scale; 然后再乘两倍的right，就得到世界坐标系下的x值
+            
+            Vector3f dir = normalize(Vector3f(x, y, -1)); // 这是primary ray的方向向量，需要归一化。
+            framebuffer[m++] = castRay(eye_pos, dir, scene, 0); // 发射这根光线
         }
         UpdateProgress(j / (float)scene.height);
     }

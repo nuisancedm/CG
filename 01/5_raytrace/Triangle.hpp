@@ -48,7 +48,7 @@ public:
                    Vector2f& uv) const override
     {
         bool intersect = false;
-        for (uint32_t k = 0; k < numTriangles; ++k)
+        for (uint32_t k = 0; k < numTriangles; ++k) // 遍历这个物体的所有三角形 判断是否相交。
         {
             const Vector3f& v0 = vertices[vertexIndex[k * 3]];
             const Vector3f& v1 = vertices[vertexIndex[k * 3 + 1]];
