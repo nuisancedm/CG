@@ -12,7 +12,17 @@
     castRay(){ //该函数返回一条光线看到的颜色
         Vector3f hitColor = scene.backgroundColor;
         if(auto payload = trace(); payload){
-            ...
+            switch(materialType){
+            case 反射并折射{
+                反射castRay();
+                折射castRay()；
+            }
+            case 反射{
+                反射castRay();
+            }
+            default：{
+                Phong模型着色
+            }
         }
     }
 
