@@ -35,6 +35,9 @@ void Renderer::Render(const Scene& scene)
             // *scale*, and x (horizontal) variable with the *imageAspectRatio*
 
             // Don't forget to normalize this direction!
+            Vector3f dir = normalize(Vector3f(x, y, -1)); // 这是primary ray的方向向量，需要归一化。
+            Ray ray(eye_pos, dir);
+            framebuffer[m++] = scene.castRay(ray, 0); // 发射这根光线
 
         }
         UpdateProgress(j / (float)scene.height);

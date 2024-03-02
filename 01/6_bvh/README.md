@@ -5,7 +5,7 @@
 ## 通过Bounding Volumes加速
 
 Bounding Volumes其实就是包围盒的概念，我们有一个小盒子正正好的把场景中的某一个物体放进去，如果光线连包围盒都无法击中，自然也就无法其中其中的物体，这样就排除一根光线和许多不必要的三角形计算相交性。  
-我们通常使用Axis-Aligned Bounding Box (AABB)来当做这个盒子。AABB的面一定是和ZYX面平行的。  
+我们通常使用Axis-Aligned Bounding Box (AABB)来当做这个盒子。AABB的面一定是和ZYX面平行的。p'为面上任意一点  
 对于AABB来说，计算光线与面相交会很容易，假设我们的面垂直于x平面，那么相交时间t满足
 $$
 t=\frac {p'_x-o_x}{d_x}
