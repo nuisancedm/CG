@@ -1,4 +1,5 @@
 # 代码
+
 ``` C++
     场景中添加物体，光源，平面。
     创建 framebuffer 
@@ -9,37 +10,58 @@
     }
 
     castRay(){ //该函数返回一条光线看到的颜色
+        Vector3f hitColor = scene.backgroundColor;
         if(auto payload = trace(); payload){
-
+            ...
         }
     }
 
-    trace(){ //该函数返回一条光线在场景中的最近相交信息
+    std::optional<hit_payload> trace(){ //该函数返回一条光线在场景中的最近相交信息
+        float tNear = INF;
+        初始化payload
         for(场景中的所有物体){
-            if(intersect() && tNearK < tNear){
-
+            float = tNearK = INF;
+            uint32_t indexK;
+            Vector2f uvK;
+            if(intersect(tNearK, indexK, uvK) && tNearK < tNear){
+                更新payload和tNear；
             }
         }
+        return payload;
     }
 
-    intersect(){ //该函数返回bool是否和某个物体相交
-        for(物体上的所有三角形){
-            if(rayTriangleIntersect()&& t < tnear){
-
+    bool intersect(...float &tnear, unint32_t &index, Vector2f &uv){ //该函数返回bool是否和某个物体相交
+        bool intersect = false;
+        for(物体上的所有三角形中的第k个){
+            float t, u, v;
+            if(rayTriangleIntersect(...t, u, v) && t < tnear){
+                tnear = t;
+                uv.x = u;
+                uv.y = v;
+                index = k;
+                intersect = true;
             }
         }
+        return intersect;
     }
 
-    rayTriangleIntersect(){//该函数返回bool一条光线是否和某个三角形相交
+    bool rayTriangleIntersect(...float &tnear, float &u, float v){//该函数返回bool一条光线是否和某个三角形相交
+        Moller Trumbore算法  
+        计算出u，v，t，通过引用的方式返回  
 
+        tnear = ;
+        u = ;
+        v = ;
+
+        if(u,v,t,(1-u-v)>=0) return true;
+
+        return false;
     }
 
 ```
 
-
-
-
 # 以下是笔记
+
 # Shadow map
 
 在以往着色流程中，我们只对一个shading point进行着色，只考虑这个shading point自己的法线，光源方向，观察方向，uv坐标等属性，而不考虑场景中其他地方对这个shading point的影响。而这是不正确的，因为当这个shading point和光源之间有东西阻挡的时候，这样的做法不会正确的计算阴影。
@@ -152,13 +174,14 @@ $$
 
 Moller Trumbore 算法：
 
-* 对于三角形内任意一个点，一定可以被三角形的三个顶点坐标线性表示，如果该点同时满足o+td，那么它就是光线和三角形的交点，即解下面这个方程：
+* 对于三角形内任意一个点，一定可以被三角形的三个顶点坐标线性表示。
+* 如果该点同时满足o+td，那么它就是光线和三角形的交点，即解下面这个方程：
 
 $$
 O+tD = (1-b_1-b_2)P_0+b_1P_1+b_2P_2
 $$
 
-解这个方程中t,b1,b2为三个未知数（其中b1，b2 (1-b1-b2)为重心坐标  
+解这个方程中t,b1,b2为三个未知数,**若t,b1,b2,(1-b1-b2)都大于等于0**，则相交。（其中b1，b2 (1-b1-b2)为交点的重心坐标  
 
 $$
 \begin{bmatrix}

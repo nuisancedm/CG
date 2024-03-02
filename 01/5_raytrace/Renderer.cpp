@@ -146,21 +146,21 @@ Vector3f castRay(
     }
 
     Vector3f hitColor = scene.backgroundColor; // 默认击中为背景色蓝色
-    if (auto payload = trace(orig, dir, scene.get_objects()); payload)
+    if (auto payload = trace(orig, dir, scene.get_objects()); payload) //如果有击中，payload为最近的击中点信息
     {
         Vector3f hitPoint = orig + dir * payload->tNear; //这条光线的击中点
-        Vector3f N;  // normal
-        Vector2f st; // st coordinates
-        payload->hit_obj->getSurfaceProperties(hitPoint, dir, payload->index, payload->uv, N, st);
+        Vector3f N;  // 声明法线
+        Vector2f st; // 声明纹理坐标
+        payload->hit_obj->getSurfaceProperties(hitPoint, dir, payload->index, payload->uv, N, st); // 赋值法线和纹理坐标
         switch (payload->hit_obj->materialType)
         {
-        case REFLECTION_AND_REFRACTION:
+        case REFLECTION_AND_REFRACTION: // 如果材质信息为折射并反射
         {
-            Vector3f reflectionDirection = normalize(reflect(dir, N));
-            Vector3f refractionDirection = normalize(refract(dir, N, payload->hit_obj->ior));
-            Vector3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ? hitPoint - N * scene.epsilon : hitPoint + N * scene.epsilon;
+            Vector3f reflectionDirection = normalize(reflect(dir, N)); // 计算反射方向
+            Vector3f refractionDirection = normalize(refract(dir, N, payload->hit_obj->ior)); // 计算折射方向
+            Vector3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ? hitPoint - N * scene.epsilon : hitPoint + N * scene.epsilon; //
             Vector3f refractionRayOrig = (dotProduct(refractionDirection, N) < 0) ? hitPoint - N * scene.epsilon : hitPoint + N * scene.epsilon;
-            Vector3f reflectionColor = castRay(reflectionRayOrig, reflectionDirection, scene, depth + 1);
+            Vector3f reflectionColor = castRay(reflectionRayOrig, reflectionDirection, scene, depth + 1); // 反射折射分别递归再发射两条光线
             Vector3f refractionColor = castRay(refractionRayOrig, refractionDirection, scene, depth + 1);
             float kr = fresnel(dir, N, payload->hit_obj->ior);
             hitColor = reflectionColor * kr + refractionColor * (1 - kr);
