@@ -104,4 +104,3 @@ Intersect(Ray ray, BVH node){
 * 一个物体只可能出现在一个区域中
 * 包围盒有可能重叠
 
-# 辐射度量学 Basic radiometry
