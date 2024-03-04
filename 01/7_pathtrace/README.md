@@ -174,8 +174,136 @@ $$
 这个方程有两个问题：  
 1：首先这是一个积分，我们要在半球上求积分。  
 2：积分中存在递归。
-
-## 对于第一个问题，求积分
+## 问题1：蒙特卡洛解渲染方程
 我们使用上面的蒙特卡洛积分来解决。  
 假设我们只渲染一个着色点的直接光照，且该点没有自发光。   
 我们最终看到的这个着色点的颜色就是从四面八方打到这个着色点的光和BRDF作用的和。
+
+我们想要计算点p朝向摄像机方向的radiance（不考虑自发光）：
+$$
+L_o(p,w_o) = \int_{\Omega+} L_i(p,w_i)f_r(p,w_i,w_o)(n\cdot w_i)dw_i
+$$
+
+我们有蒙特卡洛积分：
+$$
+\int_a^bf(x)dx = \frac{1}{N} \sum_{k=1}^N\frac{f(X_{k})}{p(X_{k})}
+$$
+
+我们的f(x)就是
+$$
+L_i(p,w_i)f_r(p,w_i,w_o)(n\cdot w_i)
+$$
+
+我们的概率密度通常是1/2pi，是在半球上均匀采样：
+$$
+p(w_i)=\frac{1}{2\pi}
+$$
+
+那么渲染方程的蒙特卡洛形式：
+$$
+L_o(p,w_o) = \frac{1}{N} \sum_{k=1}^N\frac{L_i(p,w_i)f_r(p,w_i,w_o)(n\cdot w_i)}{p(w_i)}
+$$
+对应以下伪代码  
+``` C++
+shade(p,wo)  
+    randomly choose N directions wi
+    Lo = 0.0
+    for each wi  
+        Trace a ray r(p,wi)
+        if ray r hit the light
+            Lo += (1 / N) * L_i * f_r * cosine / pdf(wi);
+        Else If ray r hit an object at q
+            Lo += (1 / N) * shade(q, -wi) * f_r * cosine / pdf(wi);
+    return Lo
+```
+上面这个算法有严重的问题，光线数量会指数爆炸，使计算成为不可能。  
+如果我们每次只随机选择一根光线，那么指数爆炸的问题就会被解决，如下
+``` C++
+shade(p,wo)  
+    randomly choose 1 directions wi
+    Lo = 0.0
+    Trace a ray r(p,wi)
+    if ray r hit the light
+        return L_i * f_r * cosine / pdf(wi);
+    Else If ray r hit an object at q
+        return shade(q, -wi) * f_r * cosine / pdf(wi);
+```
+这是Path tracing，如果N不等于1，就叫做分布式光线追踪。 
+但是！只有一条光线，那么渲染结果的噪声巨高，我们用Ray Generation来解决。
+``` C++
+    Uniformly choose N sample position within the pixel
+    pixel_radiance = 0.0
+    For each sample in the pixel
+        shoot a ray r(canPos, cam_to_sample)
+        if(ray hit the scene at P)
+            pixel-radiance += (1 / N) * shade(p, sample_to_cam);
+    return pixel_radiance
+```
+## 问题2：无限递归
+现实世界的光是无限弹射的，但是我们在计算机中无法模拟无限弹射。  
+我们用俄罗斯轮盘赌rr的方式来解决这个问题。
+
+我们手动设置一个概率P 
+我们以P的概率射出一条光线并且返回着色结果Lo/P  
+我们以1-P的概率，不射出光线，返回着色结果0  
+
+这种方法，仍然可以通过期望得到正确的Lo
+$$
+E=P*(Lo/P)+(1-P)*0 = Lo
+$$
+我们更改代码
+``` C++
+shade(p,wo)  
+    Manually specify a probability P_RR
+    Randomly select ksi in a uniform dist. in[0,1]
+    if(ksi > P_RR) return 0.0;
+
+
+    Ramdonly choose 1 direction wi
+    Trace a ray r(p,wi)
+    if ray r hit the light
+        return L_i * f_r * cosine / pdf(wi) / P_RR;
+    Else If ray r hit an object at q
+        return shade(q, -wi) * f_r * cosine / pdf(wi) / P_RR;
+```
+上述代码是一个已经确定的正确的path tracing代码，但是他不是很高效，当每个像素内的采样点比较少的时候，渲染结果噪声会很高。
+
+## 提升效率
+上述的path tracing在低采样率的情况下，噪声很高。  
+原因是因为，我们随机发射的一束光线，他击中光源的概率完全靠运气，当我们在半球均匀采样的时候，有很大一部分光线不会射到光源，是无效的。 
+
+我们最好能直接在单位光源面积dA上采样，这样发射的光线就一定能击中光源。
+我们以前的渲染方程是在着色点的单位半球对立体角dw积分，而我们想对光源采样，蒙特卡罗积分就不能用。
+
+我们找到dA和dw的关系，并把渲染方程修改成关于dA的积分。
+我们直接把光源面积往单位圆上投影，投影出来的面积就是立体角。
+$$
+d\omega = \frac{dAcos\theta'}{||x'-x||^2}
+$$
+
+$$
+L_o(p,w_o) = \int_{A}L_i(p,\omega_i)f_r(p,\omega_i,\omega_o)\frac{cos\theta cos\theta'}{||x'-x||^2}dA
+$$
+此时我们对光源采样，对光源积分
+``` C++
+shade(p,wo)  
+    // Contribution from the light source.
+    L_dir=0.0
+    Uniformly sample the light at x' (pdf_；light = 1 / A) 
+    Shoot a ray from p to x'
+    if the ray is not blocked in the middle
+        L_dir = L_i * f_r * cos(theta) * cos(theta_2) / |x' - p|^2 / pdf_light
+
+    // Contribution from other reflectors
+    L_indir = 0.0
+    Test Russian Roulette with Probability P_RR
+    Uniformly sample the hemisphere toward wi (pdf_hemi = 1/2pi)
+    Trace a ray r(p, wi)
+    if ray r hit a non_emitting object at q
+        L_indir = shade(q,-wi) * f_r * cos(theta) / pdf_hemi / P_RR
+
+    return L_dir + L_indir
+```
+到此路径追踪完，但是点光源仍然很难处理，我们通常把点光源考虑成很小的面光源。
+PT是几乎100%正确的结果，可以做到照片级真实感。
+
