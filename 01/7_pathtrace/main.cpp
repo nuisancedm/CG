@@ -14,9 +14,9 @@ int main(int argc, char** argv)
 {
 
     // Change the definition here to change resolution
-    Scene scene(784, 784);
+    Scene scene(784, 784); //@@ check class Scene
 
-    Material* red = new Material(DIFFUSE, Vector3f(0.0f));
+    Material* red = new Material(DIFFUSE, Vector3f(0.0f));//@@ check class Material
     red->Kd = Vector3f(0.63f, 0.065f, 0.05f);
     Material* green = new Material(DIFFUSE, Vector3f(0.0f));
     green->Kd = Vector3f(0.14f, 0.45f, 0.091f);

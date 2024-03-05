@@ -7,7 +7,7 @@
 
 #include "Vector.hpp"
 
-enum MaterialType { DIFFUSE};
+enum MaterialType {DIFFUSE}; // @枚举类来代表材质类型
 
 class Material{
 private:
@@ -86,26 +86,26 @@ private:
     }
 
 public:
-    MaterialType m_type;
+    MaterialType m_type; //@@ 材质的类型 enum
     //Vector3f m_color;
-    Vector3f m_emission;
-    float ior;
-    Vector3f Kd, Ks;
-    float specularExponent;
+    Vector3f m_emission; //@@ 材质的发光颜色和强度
+    float ior;           //@@ 材质的折射率
+    Vector3f Kd, Ks;     //@@ 漫反射系数 和 镜面反射系数
+    float specularExponent;//？？？
     //Texture tex;
 
-    inline Material(MaterialType t=DIFFUSE, Vector3f e=Vector3f(0,0,0));
-    inline MaterialType getType();
+    inline Material(MaterialType t=DIFFUSE, Vector3f e=Vector3f(0,0,0)); //@@ 内联构造函数，什么都不指定，就按这个来
+    inline MaterialType getType(); //@@ 获取材质类型，返回enum
     //inline Vector3f getColor();
-    inline Vector3f getColorAt(double u, double v);
-    inline Vector3f getEmission();
-    inline bool hasEmission();
+    inline Vector3f getColorAt(double u, double v); //@@ 获取uv处的颜色，本项目用不到
+    inline Vector3f getEmission(); //@@ 返回材质发光的强度和颜色
+    inline bool hasEmission(); //@@ 返回布尔，该材质是否发光
 
-    // sample a ray by Material properties
+    // 给定入射方向和交点法线，sample一个出射方向
     inline Vector3f sample(const Vector3f &wi, const Vector3f &N);
-    // given a ray, calculate the PdF of this ray
+    // 给定入射方向和反射方向和法线，返回光线沿着这个反射方向反射的概率，我们是半球随机采样，1/2PI
     inline float pdf(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
-    // given a ray, calculate the contribution of this ray
+    // 给定入射方向，出射方向和法线，给定反射光线的BRDF值
     inline Vector3f eval(const Vector3f &wi, const Vector3f &wo, const Vector3f &N);
 
 };
@@ -134,12 +134,13 @@ Vector3f Material::sample(const Vector3f &wi, const Vector3f &N){
         case DIFFUSE:
         {
             // uniform sample on the hemisphere
-            float x_1 = get_random_float(), x_2 = get_random_float();
-            float z = std::fabs(1.0f - 2.0f * x_1);
-            float r = std::sqrt(1.0f - z * z), phi = 2 * M_PI * x_2;
-            Vector3f localRay(r*std::cos(phi), r*std::sin(phi), z);
-            return toWorld(localRay, N);
+            float x_1 = get_random_float(), x_2 = get_random_float(); //@@get_random_float 在 0，1之间取随机数
+            float z = std::fabs(1.0f - 2.0f * x_1); //@@ 0-1取随机z值
+            float r = std::sqrt(1.0f - z * z), phi = 2 * M_PI * x_2; //@@ 环的半径，和方位角
+            Vector3f localRay(r*std::cos(phi), r*std::sin(phi), z); //@@ 计算本地的反射反向
             
+            //@@ 转换到世界坐标系，我们是在标准半球上进行的随机采样，我们要把这个半球旋转一下，让半球y轴对齐法线方向
+            return toWorld(localRay, N); 
             break;
         }
     }
