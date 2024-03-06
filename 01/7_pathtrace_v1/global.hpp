@@ -38,16 +38,16 @@ inline float get_random_float()
     static std::random_device dev;
     static std::mt19937 rng(dev());
     static std::uniform_real_distribution<float> dist(0.f, 1.f); // distribution in range [0，1]
-
     return dist(rng);
 }
 
 inline void UpdateProgress(float progress)
 {
     int barWidth = 70;
+
     std::cout << "[";
-    int pos = progress * barWidth;
-    for (int i = 0; i < barWidth; i++)
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i)
     {
         if (i < pos)
             std::cout << "=";
@@ -56,7 +56,6 @@ inline void UpdateProgress(float progress)
         else
             std::cout << " ";
     }
-
-    std::cout << "]" << int(progress * 100) << "%\r";
+    std::cout << "] " << int(progress * 100.0) << " %\r";
     std::cout.flush();
-}
+};
