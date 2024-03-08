@@ -59,7 +59,7 @@ private:
         // Total internal reflection
         if (sint >= 1) {
             kr = 1;
-        }
+        }   
         else {
             float cost = sqrtf(std::max(0.f, 1 - sint * sint));
             cosi = fabsf(cosi);
