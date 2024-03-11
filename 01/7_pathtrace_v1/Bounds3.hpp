@@ -28,4 +28,20 @@ public:
 
 private:
 };
+
+inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)
+{
+    Bounds3 ret;
+    ret.pMin = Vector3f::Min(b1.pMin, b2.pMin);
+    ret.pMax = Vector3f::Max(b1.pMax, b2.pMax);
+    return ret;
+}
+
+inline Bounds3 Union(const Bounds3& b, const Vector3f& p)
+{
+    Bounds3 ret;
+    ret.pMin = Vector3f::Min(b.pMin, p);
+    ret.pMax = Vector3f::Max(b.pMax, p);
+    return ret;
+}
 #endif
