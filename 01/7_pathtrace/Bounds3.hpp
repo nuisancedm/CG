@@ -13,7 +13,7 @@ class Bounds3
 {
   public:
     Vector3f pMin, pMax; // two points to specify the bounding box
-    Bounds3()
+    Bounds3()//@@ it is a empty box, max is very negative and min is very positive.
     {
         double minNum = std::numeric_limits<double>::lowest();
         double maxNum = std::numeric_limits<double>::max();

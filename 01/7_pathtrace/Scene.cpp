@@ -7,6 +7,7 @@
 
 void Scene::buildBVH() {
     printf(" - Generating BVH...\n\n");
+    //@@ BVHAccel(object list, number of primitives each leaf node has, splitMethod)
     this->bvh = new BVHAccel(objects, 1, BVHAccel::SplitMethod::NAIVE);
 }
 

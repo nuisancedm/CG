@@ -6,12 +6,12 @@ BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
                    SplitMethod splitMethod)
     : maxPrimsInNode(std::min(255, maxPrimsInNode)), splitMethod(splitMethod),
       primitives(std::move(p))
-{
+{   
     time_t start, stop;
     time(&start);
     if (primitives.empty())
         return;
-
+    //@@ recursive build the BVH tree
     root = recursiveBuild(primitives);
 
     time(&stop);
@@ -29,19 +29,22 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
 {
     BVHBuildNode* node = new BVHBuildNode();
 
-    // Compute bounds of all primitives in BVH node
+    //@@ Compute bounds of all primitives in BVH node
     Bounds3 bounds;
     for (int i = 0; i < objects.size(); ++i)
         bounds = Union(bounds, objects[i]->getBounds());
+    //@@ if only one object in the object list. it should be a leaf node. 
     if (objects.size() == 1) {
         // Create leaf _BVHBuildNode_
         node->bounds = objects[0]->getBounds();
         node->object = objects[0];
         node->left = nullptr;
         node->right = nullptr;
-        node->area = objects[0]->getArea();
+        node->area = objects[0]-> getArea(); //@@ it is the area of all triangles of the object.
         return node;
     }
+
+    //@@ 
     else if (objects.size() == 2) {
         node->left = recursiveBuild(std::vector{objects[0]});
         node->right = recursiveBuild(std::vector{objects[1]});
