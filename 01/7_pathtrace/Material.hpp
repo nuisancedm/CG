@@ -7,12 +7,13 @@
 
 #include "Vector.hpp"
 
-enum MaterialType {DIFFUSE}; // @枚举类来代表材质类型
+//@@ a enum to represent all type of the material, only diffuse here though.
+enum MaterialType {DIFFUSE}; 
 
 class Material{
 private:
 
-    // Compute reflection direction
+    //@@ compute reflection direction: param: income dir, normal
     Vector3f reflect(const Vector3f &I, const Vector3f &N) const
     {
         return I - 2 * dotProduct(I, N) * N;
@@ -86,20 +87,20 @@ private:
     }
 
 public:
-    MaterialType m_type; //@@ 材质的类型 enum
+    MaterialType m_type;   //@@ Material type 
     //Vector3f m_color;
-    Vector3f m_emission; //@@ 材质的发光颜色和强度
-    float ior;           //@@ 材质的折射率
-    Vector3f Kd, Ks;     //@@ 漫反射系数 和 镜面反射系数
-    float specularExponent;//？？？
+    Vector3f m_emission;   //@@ the lighting color and intensity of the material
+    float ior;             //@@ refracting rate.
+    Vector3f Kd, Ks;       //@@ diffuse reflect index and specular reflect index.  
+    float specularExponent;//@@ ？？？ 
     //Texture tex;
 
-    inline Material(MaterialType t=DIFFUSE, Vector3f e=Vector3f(0,0,0)); //@@ 内联构造函数，什么都不指定，就按这个来
-    inline MaterialType getType(); //@@ 获取材质类型，返回enum
+    inline Material(MaterialType t=DIFFUSE, Vector3f e=Vector3f(0,0,0)); //@@ constructor, default by DIFFUSE and none emission
+    inline MaterialType getType(); //@@ return the enum Material type 
     //inline Vector3f getColor();
-    inline Vector3f getColorAt(double u, double v); //@@ 获取uv处的颜色，本项目用不到
-    inline Vector3f getEmission(); //@@ 返回材质发光的强度和颜色
-    inline bool hasEmission(); //@@ 返回布尔，该材质是否发光
+    inline Vector3f getColorAt(double u, double v); //@@ return the color of (u,v) on this material.
+    inline Vector3f getEmission(); //@@ return the Emission color and intensity.
+    inline bool hasEmission(); //@@ return a bool if this material has emission.
 
     // 给定入射方向和交点法线，sample一个出射方向
     inline Vector3f sample(const Vector3f &wi, const Vector3f &N);

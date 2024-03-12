@@ -15,7 +15,7 @@
 class Scene
 {
 public:
-    // setting up options
+    //@@ setting up options
     int width = 1280;
     int height = 960;
     double fov = 40;
@@ -23,16 +23,22 @@ public:
     int maxDepth = 1;
     float RussianRoulette = 0.8; //@@ russianRoulette rate used to kill ray bouncing
 
+    //@@ constructor, only init width and height
     Scene(int w, int h) : width(w), height(h)
     {
     }
 
+    //@@ add object to object list: triangles, triangleMeshes
     void Add(Object *object) { objects.push_back(object); }
+    //@@ add light, light is not inherit from Object
     void Add(std::unique_ptr<Light> light) { lights.push_back(std::move(light)); }
 
+    //@@ return a reference to objects
     const std::vector<Object *> &get_objects() const { return objects; }
+    //@@ same but light
     const std::vector<std::unique_ptr<Light>> &get_lights() const { return lights; }
-    Intersection intersect(const Ray &ray) const; // it returns the first intersect the ray hit the scene
+
+    Intersection intersect(const Ray &ray) const; 
     BVHAccel *bvh;
     void buildBVH();
     Vector3f castRay(const Ray &ray, int depth) const;
@@ -43,11 +49,11 @@ public:
                                                    const std::vector<Object *> &objects, uint32_t &index,
                                                    const Vector3f &dir, float specularExponent);
 
-    // creating the scene (adding objects and lights)
+   
     std::vector<Object *> objects;
     std::vector<std::unique_ptr<Light>> lights;
 
-    // Compute reflection direction
+    
     Vector3f reflect(const Vector3f &I, const Vector3f &N) const
     {
         return I - 2 * dotProduct(I, N) * N;
