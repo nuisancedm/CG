@@ -11,9 +11,10 @@ BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
     time(&start);
     if (primitives.empty())
         return;
-    //@@ recursive build the BVH tree
+    //@@ recursive build the BVH tree and return the root node.
     root = recursiveBuild(primitives);
 
+    //@@ print the time used
     time(&stop);
     double diff = difftime(stop, start);
     int hrs = (int)diff / 3600;
@@ -40,25 +41,31 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
         node->object = objects[0];
         node->left = nullptr;
         node->right = nullptr;
-        node->area = objects[0]-> getArea(); //@@ it is the area of all triangles of the object.
+        //@@ it is the area of all triangles of the object.
+        node->area = objects[0]-> getArea(); 
         return node;
     }
 
-    //@@ 
+    //@@ if there is two object in the object list, should be seperate in the leaf nodes.
     else if (objects.size() == 2) {
         node->left = recursiveBuild(std::vector{objects[0]});
         node->right = recursiveBuild(std::vector{objects[1]});
-
+        //@@ calculate the bounding box of this two nodes.
         node->bounds = Union(node->left->bounds, node->right->bounds);
         node->area = node->left->area + node->right->area;
         return node;
     }
+    //@@ more than 2 objects in the nodes.
     else {
+        //@@ centroidBounds saves center position of each object's bounds.
         Bounds3 centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
             centroidBounds =
                 Union(centroidBounds, objects[i]->getBounds().Centroid());
+        //@@ find which axis is the longest
         int dim = centroidBounds.maxExtent();
+
+        //@@ sort by center position
         switch (dim) {
         case 0:
             std::sort(objects.begin(), objects.end(), [](auto f1, auto f2) {
@@ -111,17 +118,19 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     // TODO Traverse the BVH to find intersection
-     Vector3f invDir{1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z};
+    Vector3f invDir{1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z};
     std::array<int, 3> dirIsNeg{int(ray.direction.x < 0), int(ray.direction.y < 0), int(ray.direction.z < 0)};
 
+    //@@ if the ray doesn't intersect with the current node.
     if (node->bounds.IntersectP(ray, invDir, dirIsNeg) == false)
     {
-        return Intersection();
+        return Intersection(); //@@ return a empty intersection
     }
 
+    //@@ if the ray intersect with this node and it is a leaf node.
     if (node->left == nullptr && node->right == nullptr)
     {
-        // test intersection with all objs;
+        //@@ test intersection with all objects of this node;
         Intersection intersec = node->object->getIntersection(ray);
         return intersec;
     }
@@ -138,7 +147,6 @@ Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
     }
 
     return hit1.distance < hit2.distance ? hit1 : hit2;
-
 }
 
 

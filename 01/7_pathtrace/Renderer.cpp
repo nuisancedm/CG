@@ -17,26 +17,34 @@ const float EPSILON = 0.001;
 // generate primary rays and cast these rays into the scene. The content of the
 // framebuffer is saved to a file.
 void Renderer::Render(const Scene& scene)
-{
+{   
+    //@@ create frame buffer.
     std::vector<Vector3f> framebuffer(scene.width * scene.height);
 
+    //@@ scale = tan(fov/2)
     float scale = tan(deg2rad(scene.fov * 0.5));
+    //@@ aspect ratio
     float imageAspectRatio = scene.width / (float)scene.height;
+    //@@ camera position 
     Vector3f eye_pos(278, 273, -800);
     int m = 0;
 
     // change the spp value to change sample ammount
     int spp = 16;
     std::cout << "SPP: " << spp << "\n";
+    //@@ for every pixels
     for (uint32_t j = 0; j < scene.height; ++j) {
         for (uint32_t i = 0; i < scene.width; ++i) {
             // generate primary ray direction
+            //@@ get the pixel center position, and it is the dir.
             float x = (2 * (i + 0.5) / (float)scene.width - 1) *
                       imageAspectRatio * scale;
             float y = (1 - 2 * (j + 0.5) / (float)scene.height) * scale;
 
             Vector3f dir = normalize(Vector3f(-x, y, 1));
+            //@@ we sample 16 times and get the average
             for (int k = 0; k < spp; k++){
+                //@@ castRay(ray, recrusive depth)
                 framebuffer[m] += scene.castRay(Ray(eye_pos, dir), 0) / spp;  
             }
             m++;

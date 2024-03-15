@@ -33,7 +33,6 @@ int main(int argc, char** argv)
     MeshTriangle left("../models/cornellbox/left.obj", red);
     MeshTriangle right("../models/cornellbox/right.obj", green);
     MeshTriangle light_("../models/cornellbox/light.obj", light);
-
     //@@ push and meshtriangle into scene, all void Add(Object *object) here.
     scene.Add(&floor);
     scene.Add(&shortbox);
@@ -41,7 +40,6 @@ int main(int argc, char** argv)
     scene.Add(&left);
     scene.Add(&right);
     scene.Add(&light_);
-
     //@@ build BVH of the scene.
     scene.buildBVH();
 
@@ -50,7 +48,6 @@ int main(int argc, char** argv)
     auto start = std::chrono::system_clock::now();
     r.Render(scene);
     auto stop = std::chrono::system_clock::now();
-
     std::cout << "Render complete: \n";
     std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << " hours\n";
     std::cout << "          : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() << " minutes\n";
